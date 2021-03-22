@@ -10,33 +10,36 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 public class ChannelFactory extends BasePooledObjectFactory<Channel> {
-    private static final ChannelFactory channelFactory = new ChannelFactory();
+    private static ChannelFactory channelFactory = null;
     private static final String EXCHANGE_NAME = "purchase";
     private static final String EXCHANGE_TYPE = "fanout";
+    private static final String HOST = "localhost";
     private final ConnectionFactory factory;
+    private final Connection connection;
 
     public static ChannelFactory getChannelFactoryInstance() {
+        if (channelFactory == null) {
+            try {
+                channelFactory = new ChannelFactory();
+            } catch (IOException | TimeoutException e) {
+                e.printStackTrace();
+                System.err.println("Unable to get channel factory instance");
+            }
+        }
         return channelFactory;
     }
 
-    private ChannelFactory() {
+    private ChannelFactory() throws IOException, TimeoutException {
         factory = new ConnectionFactory();
-        factory.setHost("localhost");
+        factory.setHost(HOST);
+        connection = factory.newConnection();
     }
 
     @Override
-    public Channel create() {
-        try (Connection connection = factory.newConnection();
-             Channel channel = connection.createChannel()) {
-
-            channel.exchangeDeclare(EXCHANGE_NAME, EXCHANGE_TYPE);
-            return channel;
-
-        } catch (IOException | TimeoutException e) {
-            e.printStackTrace();
-            System.err.println("Unable to create channel");
-            return null;
-        }
+    public Channel create() throws IOException {
+        Channel channel = connection.createChannel();
+        channel.exchangeDeclare(EXCHANGE_NAME, EXCHANGE_TYPE);
+        return channel;
     }
 
     /**

@@ -9,8 +9,6 @@ public class ChannelPool extends GenericObjectPool<Channel> {
 
     /**
      * Creates a new ChannelPool
-     * Uses the default configuration for pool provided by
-     * apache-commons-pool2.
      *
      * @param factory - a factory for creating Pooled Channel
      *                  objects

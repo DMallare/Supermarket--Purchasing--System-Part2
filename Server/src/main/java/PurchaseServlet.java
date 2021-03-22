@@ -10,11 +10,10 @@ import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.TimeoutException;
 
 @WebServlet(name = "PurchaseServlet", value = "/PurchaseServlet")
 public class PurchaseServlet extends HttpServlet {
-    private static final String EXCHANGE_NAME = "purchases";
+    private static final String EXCHANGE_NAME = "purchase";
     final private int STOREID_INDEX = 1;
     final private int CUSTOMER_INDEX = 2;
     final private int CUSTOMERID_INDEX = 3;
@@ -26,6 +25,7 @@ public class PurchaseServlet extends HttpServlet {
     public void init() throws ServletException {
         try {
             channel = ChannelPool.getChannelPoolInstance().borrowObject();
+            System.out.println("Got channel " + channel);
         } catch (Exception exception) {
             exception.printStackTrace();
             System.err.println("Error retrieving a channel from the pool");
@@ -73,17 +73,18 @@ public class PurchaseServlet extends HttpServlet {
                 newPurchase.setDate(urlParts[DATE_VAL_INDEX]);
                 newPurchase.setPurchaseItems(purchaseItemsStr);
 
-                sendPurchase(newPurchase);
+                enqueuePurchase(newPurchase);
                 response.setStatus(HttpServletResponse.SC_CREATED);
             }
         } catch (Exception e) {
             response.setStatus((HttpServletResponse.SC_BAD_REQUEST));
-            response.getWriter().write("Invalid purchase");
+            System.out.println("Exception " + e +" was thrown.");
+            response.getWriter().write("Purchase did not get enqueued.");
         }
     }
 
-    private void sendPurchase(Purchase purchase) throws IOException, TimeoutException {
-            String message = "Hello";
+    private void enqueuePurchase(Purchase purchase) throws IOException {
+            String message = new Gson().toJson(purchase);
             channel.basicPublish(EXCHANGE_NAME, "", null, message.getBytes("UTF-8"));
     }
 
@@ -152,6 +153,11 @@ public class PurchaseServlet extends HttpServlet {
         return verifyDate(urlParts[DATE_VAL_INDEX])
                 && verifyCustomerId(urlParts[CUSTOMERID_INDEX])
                 && verifyStoreId(urlParts[STOREID_INDEX]);
+    }
+
+    @Override
+    public void destroy() {
+        ChannelPool.getChannelPoolInstance().returnObject(channel);
     }
 
 }
