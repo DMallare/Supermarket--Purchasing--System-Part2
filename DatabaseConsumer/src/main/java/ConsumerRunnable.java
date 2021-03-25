@@ -36,7 +36,8 @@ public class ConsumerRunnable implements Runnable {
                     System.err.println("Purchase was unable to be added to the database");
                 }
                 channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-                System.out.println( "Callback thread ID = " + Thread.currentThread().getId() + " Received '" + message + "'");
+                System.out.println( "Callback thread ID = " + Thread.currentThread().getId()
+                        + " Received '" + message + "'");
             };
 
             channel.basicConsume(queueName, false, deliverCallback, consumerTag -> { });
@@ -50,6 +51,6 @@ public class ConsumerRunnable implements Runnable {
         Purchase newPurchase = new Gson().fromJson(purchaseString, Purchase.class);
         System.out.println("Adding to the DB!");
         return purchaseDao.createPurchase(newPurchase);
-    }
+        }
 
 }

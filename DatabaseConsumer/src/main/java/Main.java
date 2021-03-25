@@ -2,16 +2,23 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
+import java.io.FileInputStream;
+import java.util.Properties;
 
 public class Main {
     private static final int numThreads = 200;
-    private static final ProcessBuilder processBuilder = new ProcessBuilder();
 
-    public static void main(String[] args) throws InterruptedException, IOException, TimeoutException {
+    public static void main(String[] args) throws Exception {
+        // set config properties
+        FileInputStream configFile = new FileInputStream("config.properties");
+        Properties props = new Properties(System.getProperties());
+        props.load(configFile);
+        System.setProperties(props);
+        //System.getProperties().list(System.out);
+
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(processBuilder.environment().get("HOST"));
+        factory.setHost(System.getProperty("MySQL_IP_ADDRESS"));
+
         final Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
         final String queueName = channel.queueDeclare().getQueue();
