@@ -25,7 +25,6 @@ public class PurchaseServlet extends HttpServlet {
     public void init() throws ServletException {
         try {
             channel = ChannelPool.getChannelPoolInstance().borrowObject();
-            System.out.println("Got channel " + channel);
         } catch (Exception exception) {
             exception.printStackTrace();
             System.err.println("Error retrieving a channel from the pool");
@@ -77,8 +76,8 @@ public class PurchaseServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_CREATED);
             }
         } catch (Exception e) {
-            response.setStatus((HttpServletResponse.SC_BAD_REQUEST));
-            System.out.println("Exception " + e +" was thrown.");
+            e.printStackTrace();
+            response.setStatus((HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
             response.getWriter().write("Purchase did not get enqueued.");
         }
     }
