@@ -6,7 +6,6 @@ public class Store {
     private Map<String,Integer> itemPurchaseCounts = new ConcurrentHashMap<>();
     private BoundedSortedList<ItemCountPair> topItemsPurchased = new BoundedSortedList<ItemCountPair>();
 
-
     public void addItemPurchase(String itemId, Integer quantityPurchased) {
         int currentTotalPurchased = itemPurchaseCounts.getOrDefault(itemId, NEW_ITEM_COUNT);
         int totalPurchased = currentTotalPurchased + quantityPurchased;

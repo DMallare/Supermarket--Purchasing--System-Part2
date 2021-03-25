@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class BoundedSortedList<T extends Comparable<T>> extends ArrayList<T> {
@@ -11,23 +10,20 @@ public class BoundedSortedList<T extends Comparable<T>> extends ArrayList<T> {
     }
 
     public synchronized void addItem(T item) {
-        if (items.size() == MAX_LENGTH) {
-            items.add(item);
-        } else {
-            for (int i = 0; i < items.size(); i++) {
-                if (item.compareTo(items.get(i)) > 0) {
-                    items.add(item);
-                    break;
-                }
+        for (int i = items.size() - 1; i >= 0; i--) {
+            if (item.compareTo(items.get(i)) > 0) {
+                shift(i, item);
+                break;
             }
         }
+    }
 
-        Collections.sort(items);
-
-        // If we have gone beyond the max length of the array, kick
-        // out the lowest value
-        if (items.size() > MAX_LENGTH) {
-            items.remove(0);
+    private synchronized void shift(int index, T item) {
+        T newValue = item;
+        for (int i = index; i >= 0; i--) {
+            T oldValue = items.get(i);
+            items.set(i, newValue);
+            newValue = oldValue;
         }
     }
 
