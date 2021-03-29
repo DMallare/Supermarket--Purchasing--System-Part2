@@ -13,7 +13,7 @@ public class ChannelFactory extends BasePooledObjectFactory<Channel> {
     private static ChannelFactory channelFactory = null;
     private static final String EXCHANGE_NAME = "purchase";
     private static final String EXCHANGE_TYPE = "fanout";
-    private static final String HOST = "localhost";
+    private static final String HOST = System.getProperty("RABBITMQ_HOST");
     private final ConnectionFactory factory;
     private final Connection connection;
 
@@ -21,7 +21,7 @@ public class ChannelFactory extends BasePooledObjectFactory<Channel> {
         if (channelFactory == null) {
             try {
                 channelFactory = new ChannelFactory();
-            } catch (IOException | TimeoutException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 System.err.println("Unable to get channel factory instance");
             }

@@ -56,7 +56,8 @@ public class PurchaseServlet extends HttpServlet {
         // validate request body
         String purchaseItemsStr = parseRequestBody(request.getReader());
         try {
-            PurchaseItems purchaseItems = new Gson().fromJson(purchaseItemsStr, PurchaseItems.class);
+            PurchaseItems purchaseItems =
+                    new Gson().fromJson(purchaseItemsStr, PurchaseItems.class);
             if (!validatePurchase(purchaseItems)) {
                 response.setStatus((HttpServletResponse.SC_BAD_REQUEST));
                 response.getWriter().write("Invalid purchaseItems");
