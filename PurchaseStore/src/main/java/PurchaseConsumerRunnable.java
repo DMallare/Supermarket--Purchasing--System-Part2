@@ -8,15 +8,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PurchaseConsumerRunnable implements Runnable {
-    private final Store purchaseStore;
+    private final PurchaseStore purchaseStore;
     private static final String EXCHANGE_NAME = "purchase";
     private static final String EXCHANGE_TYPE = "fanout";
     private final Connection connection;
     private final String queueName;
 
-    public PurchaseConsumerRunnable(Store store, Connection connection, String queueName)
+    public PurchaseConsumerRunnable(PurchaseStore purchaseStore, Connection connection, String queueName)
             throws IOException {
-        this.purchaseStore = store;
+        this.purchaseStore = purchaseStore;
         this.connection = connection;
         this.queueName = queueName;
     }
@@ -46,14 +46,20 @@ public class PurchaseConsumerRunnable implements Runnable {
     }
 
     private boolean storePurchase(String purchaseString) {
+        // create Purchase and PurchaseItems instances from message
         Purchase newPurchase = new Gson().fromJson(purchaseString, Purchase.class);
         PurchaseItems purchaseItems = new Gson().fromJson(newPurchase.getPurchaseItems(), PurchaseItems.class);
+
+        // add data to the store
         for (int i = 0; i < purchaseItems.getItems().size(); i++) {
             PurchaseItem item = purchaseItems.getItems().get(i);
             String itemId = item.getItemID();
             int quantity = item.getNumberOfItems();
-            purchaseStore.addPurchaseItem(itemId, quantity);
+            purchaseStore.addItemToStorePurchases(newPurchase.getStoreID(), itemId, quantity);
+            purchaseStore.addStoreToItemPurchases(newPurchase.getStoreID(), itemId, quantity);
         }
+        System.out.println("Purchases by Store:" + purchaseStore.getStorePurchases());
+        System.out.println("Purchases by items: " + purchaseStore.getItemPurchases());
         return true;
     }
 

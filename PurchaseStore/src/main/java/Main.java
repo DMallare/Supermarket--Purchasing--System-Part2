@@ -3,25 +3,34 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 public class Main {
-    private static final int numThreads = 10;
+    private static final int NUM_PURCHASE_THREADS = 10;
 
     public static void main(String[] args) throws Exception {
+        PurchaseStore purchaseStore = PurchaseStore.getStoreInstance();
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
 
+        // create queue for purchase consumers to pull from
         final Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
-        final String queueName = channel.queueDeclare().getQueue();
+        final String purchaseQueueName = channel.queueDeclare().getQueue();
 
-        Thread[] threads = new Thread[numThreads];
-        for (int i = 0; i < numThreads; i ++) {
-            threads[i] = new Thread(new ConsumerRunnable(connection, queueName));
-            threads[i].start();
+        Thread[] purchaseThreads = new Thread[NUM_PURCHASE_THREADS];
+        for (int i = 0; i < NUM_PURCHASE_THREADS; i ++) {
+            purchaseThreads[i] =
+                    new Thread(new PurchaseConsumerRunnable(purchaseStore, connection, purchaseQueueName));
+            purchaseThreads[i].start();
         }
 
-        for (int i = 0; i < numThreads; i ++) {
-            threads[i].join();
+        Thread queryRequestThread =
+                new Thread (new QueryConsumerRunnable(purchaseStore, connection));
+        queryRequestThread.start();
+
+        for (int i = 0; i < NUM_PURCHASE_THREADS; i ++) {
+            purchaseThreads[i].join();
         }
+
+        queryRequestThread.join();
     }
 
 }

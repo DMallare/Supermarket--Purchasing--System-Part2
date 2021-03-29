@@ -36,13 +36,15 @@ public class PurchaseStore {
         return purchaseStore;
     }
 
-    public List<String> getTopNItemsForStore(int n, int storeId) {
+    public StoreQueryResponse getTopNItemsForStore(int n, int storeId) {
         ItemCountPair itemCount;
         PriorityQueue<ItemCountPair> itemCounts = new PriorityQueue<>();
+        StoreQueryResponse results = new StoreQueryResponse();
+        results.setItems(new ArrayList<>());
 
         // if there have not been any purchases made at the given store
         if (!storePurchases.containsKey(storeId)) {
-            return new ArrayList<String>();
+            return results;
         }
 
         // get items bought from the given store
@@ -56,9 +58,42 @@ public class PurchaseStore {
                 itemCounts.poll();
             }
         }
-        List<String> results = new ArrayList<>();
+
         while (!itemCounts.isEmpty()) {
-            results.add(itemCounts.poll().getFirst());
+            itemCount = itemCounts.poll();
+            PurchaseItem item = new PurchaseItem(itemCount.getFirst(), itemCount.getSecond());
+            results.getItems().add(item);
+        }
+        return results;
+    }
+
+    public ItemQueryResponse getTopNStoresForItem(int n, int itemId) {
+        StoreCountPair storeCount;
+        PriorityQueue<StoreCountPair> storeCounts = new PriorityQueue<>();
+        ItemQueryResponse results = new ItemQueryResponse();
+        results.setStores(new ArrayList<>());
+
+        // if there have not been any purchases made at the given store
+        if (!itemPurchases.containsKey(itemId)) {
+            return results;
+        }
+
+        // get items bought from the given store
+        Map<Integer, Integer> storesThatSoldItem = itemPurchases.get(itemId);
+
+        // add items to the min heap of size at most n
+        for (Integer storeId : storesThatSoldItem.keySet()) {
+            storeCount = new StoreCountPair(storeId, storesThatSoldItem.get(itemId));
+            storeCounts.add(storeCount);
+            if (storeCounts.size() > n) {
+                storeCounts.poll();
+            }
+        }
+
+        while (!storeCounts.isEmpty()) {
+            storeCount = storeCounts.poll();
+            StoreItem item = new StoreItem(storeCount.getFirst(), storeCount.getSecond());
+            results.getStores().add(item);
         }
         return results;
     }
