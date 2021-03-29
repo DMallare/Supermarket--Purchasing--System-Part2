@@ -17,7 +17,7 @@ public class Main {
         //System.getProperties().list(System.out);
 
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(System.getProperty("MySQL_IP_ADDRESS"));
+        factory.setHost(System.getProperty("RABBITMQ_HOST"));
 
         final Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
