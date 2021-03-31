@@ -4,7 +4,6 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
 
-
     <servlet>
         <servlet-name>PurchaseServlet</servlet-name>
         <servlet-class>PurchaseServlet</servlet-class>
@@ -13,5 +12,25 @@
     <servlet-mapping>
         <servlet-name>PurchaseServlet</servlet-name>
         <url-pattern>/purchase/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>TopItemsForStoreServlet</servlet-name>
+        <servlet-class>TopItemsForStoreServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>TopItemsForStoreServlet</servlet-name>
+        <url-pattern>/items/store/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>TopStoresForItemsServlet</servlet-name>
+        <servlet-class>TopStoresForItemsServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>TopStoresForItemsServlet</servlet-name>
+        <url-pattern>/items/top5/*</url-pattern>
     </servlet-mapping>
 </web-app>

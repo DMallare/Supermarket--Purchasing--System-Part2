@@ -1,4 +1,5 @@
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.rabbitmq.client.Channel;
 
 import javax.servlet.*;
@@ -7,6 +8,7 @@ import javax.servlet.annotation.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -76,7 +78,12 @@ public class PurchaseServlet extends HttpServlet {
                 enqueuePurchase(newPurchase);
                 response.setStatus(HttpServletResponse.SC_CREATED);
             }
-        } catch (Exception e) {
+        } catch (JsonSyntaxException e) {
+            e.printStackTrace();
+            response.setStatus((HttpServletResponse.SC_BAD_REQUEST));
+            response.getWriter().write("Invalid purchase");
+        }
+        catch (IOException e) {
             e.printStackTrace();
             response.setStatus((HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
             response.getWriter().write("Purchase did not get enqueued.");
