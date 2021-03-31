@@ -48,6 +48,6 @@ public class ConsumerRunnable implements Runnable {
     private boolean makePurchase(String purchaseString) {
         Purchase newPurchase = new Gson().fromJson(purchaseString, Purchase.class);
         return purchaseDao.createPurchase(newPurchase);
-        }
+    }
 
 }

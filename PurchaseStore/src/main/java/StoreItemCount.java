@@ -1,12 +1,12 @@
 import java.io.Serializable;
 
-public class StoreItem implements Serializable {
+public class StoreItemCount implements Serializable {
     private int storeID;
     private int numberOfItems;
 
-    public StoreItem() { }
+    public StoreItemCount() { }
 
-    public StoreItem(int storeID, int numberOfItems) {
+    public StoreItemCount(int storeID, int numberOfItems) {
         this.storeID = storeID;
         this.numberOfItems = numberOfItems;
     }

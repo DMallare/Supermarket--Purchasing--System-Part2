@@ -19,7 +19,7 @@ public class PurchaseStore {
         Map<Integer, Integer> storesForItem =
                 itemPurchases.getOrDefault(itemId, new ConcurrentHashMap<>());
 
-        int currentTotal = storesForItem.getOrDefault(itemId, 0);
+        int currentTotal = storesForItem.getOrDefault(storeId, 0);
         storesForItem.put(storeId, quantityPurchased + currentTotal);
         itemPurchases.put(itemId, storesForItem);
     }
@@ -40,7 +40,8 @@ public class PurchaseStore {
         ItemCountPair itemCount;
         PriorityQueue<ItemCountPair> itemCounts = new PriorityQueue<>();
         StoreQueryResponse results = new StoreQueryResponse();
-        results.setItems(new ArrayList<>());
+        List<ItemItemCount> resultItems = new ArrayList<>();
+        results.setItems(resultItems);
 
         // if there have not been any purchases made at the given store
         if (!storePurchases.containsKey(storeId)) {
@@ -61,29 +62,32 @@ public class PurchaseStore {
 
         while (!itemCounts.isEmpty()) {
             itemCount = itemCounts.poll();
-            PurchaseItem item = new PurchaseItem(itemCount.getFirst(), itemCount.getSecond());
+            int itemId = Integer.parseInt(itemCount.getFirst());
+            int count = itemCount.getSecond();
+            ItemItemCount item = new ItemItemCount(itemId, count);
             results.getItems().add(item);
         }
         return results;
     }
 
-    public ItemQueryResponse getTopNStoresForItem(int n, int itemId) {
+    public ItemQueryResponse getTopNStoresForItem(int n, Integer itemId) {
         StoreCountPair storeCount;
         PriorityQueue<StoreCountPair> storeCounts = new PriorityQueue<>();
         ItemQueryResponse results = new ItemQueryResponse();
-        results.setStores(new ArrayList<>());
+        List<StoreItemCount> resultStores = new ArrayList<>();
+        results.setStores(resultStores);
 
         // if there have not been any purchases made at the given store
-        if (!itemPurchases.containsKey(itemId)) {
+        if (!itemPurchases.containsKey(itemId.toString())) {
             return results;
         }
 
         // get items bought from the given store
-        Map<Integer, Integer> storesThatSoldItem = itemPurchases.get(itemId);
+        Map<Integer, Integer> storesThatSoldItem = itemPurchases.get(itemId.toString());
 
         // add items to the min heap of size at most n
         for (Integer storeId : storesThatSoldItem.keySet()) {
-            storeCount = new StoreCountPair(storeId, storesThatSoldItem.get(itemId));
+            storeCount = new StoreCountPair(storeId, storesThatSoldItem.get(storeId));
             storeCounts.add(storeCount);
             if (storeCounts.size() > n) {
                 storeCounts.poll();
@@ -92,7 +96,7 @@ public class PurchaseStore {
 
         while (!storeCounts.isEmpty()) {
             storeCount = storeCounts.poll();
-            StoreItem item = new StoreItem(storeCount.getFirst(), storeCount.getSecond());
+            StoreItemCount item = new StoreItemCount(storeCount.getFirst(), storeCount.getSecond());
             results.getStores().add(item);
         }
         return results;

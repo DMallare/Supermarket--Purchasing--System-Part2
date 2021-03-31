@@ -43,12 +43,16 @@ public class QueryConsumerRunnable implements Runnable {
                         System.out.println("Got request for the top 10 items!");
                         StoreQueryResponse results =
                                 store.getTopNItemsForStore(query.getN(), query.getId());
+                        System.out.println("Results are..." + results);
                         response = new Gson().toJson(results);
                     } else if (query.getType().equals("Item")) {
                         System.out.println("Got request for the top 5 stores!");
                         ItemQueryResponse results =
                                 store.getTopNStoresForItem(query.getN(), query.getId());
+                        System.out.println("Look at store: " + query.getId());
+                        System.out.println("Purchases by Store:" + store.getStorePurchases());
                         response = new Gson().toJson(results);
+                        System.out.println("Results are..." + response);
                     } else {
                         response = "Query not supported";
                     }

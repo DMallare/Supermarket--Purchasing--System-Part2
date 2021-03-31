@@ -58,8 +58,7 @@ public class PurchaseConsumerRunnable implements Runnable {
             purchaseStore.addItemToStorePurchases(newPurchase.getStoreID(), itemId, quantity);
             purchaseStore.addStoreToItemPurchases(newPurchase.getStoreID(), itemId, quantity);
         }
-        System.out.println("Purchases by Store:" + purchaseStore.getStorePurchases());
-        System.out.println("Purchases by items: " + purchaseStore.getItemPurchases());
+
         return true;
     }
 

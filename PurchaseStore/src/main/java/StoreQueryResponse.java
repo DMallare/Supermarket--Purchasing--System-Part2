@@ -6,16 +6,16 @@ import java.util.List;
  * What are the top 10 most purchased items at store N?
  */
 public class StoreQueryResponse implements Serializable {
-    private List<PurchaseItem> items;
+    private List<ItemItemCount> items;
 
     public StoreQueryResponse() {
     }
 
-    public List<PurchaseItem> getItems() {
+    public List<ItemItemCount> getItems() {
         return items;
     }
 
-    public void setItems(List<PurchaseItem> stores) {
+    public void setItems(List<ItemItemCount> items) {
         this.items = items;
     }
 }

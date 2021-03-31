@@ -1,5 +1,3 @@
-import java.util.Comparator;
-
 public class StoreCountPair extends Pair<Integer, Integer>
         implements Comparable<StoreCountPair> {
 
