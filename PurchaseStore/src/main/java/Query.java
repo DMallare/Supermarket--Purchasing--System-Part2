@@ -1,5 +1,8 @@
 import java.io.Serializable;
 
+/**
+ * A POJO representing an incoming client query to the store
+ */
 public class Query implements Serializable {
     private int n;
     private int id;

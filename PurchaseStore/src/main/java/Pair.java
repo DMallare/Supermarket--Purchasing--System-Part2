@@ -1,5 +1,10 @@
 import java.util.Objects;
 
+/**
+ * A class representing a generic ordered pair of two items
+ * @param <T>
+ * @param <S>
+ */
 public class Pair<T,S> {
     private T first;
     private S second;

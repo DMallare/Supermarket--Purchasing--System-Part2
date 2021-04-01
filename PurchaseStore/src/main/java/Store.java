@@ -1,46 +1,77 @@
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PurchaseStore {
-    private static PurchaseStore purchaseStore;
-    private Map<Integer,Map<String, Integer>> storePurchases;
-    private Map<String,Map<Integer, Integer>> itemPurchases;
+public class Store {
+    private static Store store;
+    private final Map<Integer,Map<String, Integer>> storePurchases;
+    private final Map<String,Map<Integer, Integer>> itemPurchases;
 
+    /**
+     * Given the storeID, itemID, and quantity purchased, adds this information to
+     * the map keyed by store ID
+     * @param storeId - The ID of the store
+     * @param itemId - The ID of the item that was purchased
+     * @param quantityPurchased - The amount of the item that was purchased
+     */
     public void addItemToStorePurchases(int storeId, String itemId, Integer quantityPurchased) {
         Map<String, Integer> storeItemsPurchased =
-                storePurchases.getOrDefault(storeId, new ConcurrentHashMap<>());
+                storePurchases.getOrDefault(storeId, new HashMap<>());
 
         int currentTotal = storeItemsPurchased.getOrDefault(itemId, 0);
         storeItemsPurchased.put(itemId, quantityPurchased + currentTotal);
         storePurchases.put(storeId, storeItemsPurchased);
     }
 
+
+    /**
+     * Given the storeID, itemID, and quantity purchased, adds this information to
+     * the map keyed by item ID
+     * @param storeId - The ID of the store
+     * @param itemId - The ID of the item that was purchased
+     * @param quantityPurchased - The amount of the item that was purchased
+     */
     public void addStoreToItemPurchases(int storeId, String itemId, Integer quantityPurchased) {
         Map<Integer, Integer> storesForItem =
-                itemPurchases.getOrDefault(itemId, new ConcurrentHashMap<>());
+                itemPurchases.getOrDefault(itemId, new HashMap<>());
 
         int currentTotal = storesForItem.getOrDefault(storeId, 0);
         storesForItem.put(storeId, quantityPurchased + currentTotal);
         itemPurchases.put(itemId, storesForItem);
     }
 
-    private PurchaseStore() {
+    /**
+     * Constructs a new instance of Store by initializing concurrent hash maps
+     * keyed on Store ID and Item ID
+     */
+    private Store() {
         storePurchases = new ConcurrentHashMap<>();
         itemPurchases = new ConcurrentHashMap<>();
     }
 
-    public static PurchaseStore getStoreInstance() {
-        if (purchaseStore == null) {
-            return new PurchaseStore();
+
+    /**
+     * Returns the instance of the Store
+     * @return the instance of the Store
+     */
+    public static Store getStoreInstance() {
+        if (store == null) {
+            return new Store();
         }
-        return purchaseStore;
+        return store;
     }
 
+
+    /**
+     * Returns the top N items purchased at the given store
+     * @param n - the number of top items to return
+     * @param storeId - the store ID
+     * @return the top N items purchased at the given store
+     */
     public StoreQueryResponse getTopNItemsForStore(int n, int storeId) {
         ItemCountPair itemCount;
         PriorityQueue<ItemCountPair> itemCounts = new PriorityQueue<>();
         StoreQueryResponse results = new StoreQueryResponse();
-        List<ItemItemCountModel> resultItems = new ArrayList<>();
+        List<ItemItemCount> resultItems = new ArrayList<>();
         results.setItems(resultItems);
 
         // if there have not been any purchases made at the given store
@@ -51,10 +82,12 @@ public class PurchaseStore {
         // get items bought from the given store
         Map<String, Integer> itemsBoughtAtStore = storePurchases.get(storeId);
 
-        // add items to the min heap of size at most n
+        // add items to the min heap, heap has size <= n
         for (String itemId : itemsBoughtAtStore.keySet()) {
             itemCount = new ItemCountPair(itemId, itemsBoughtAtStore.get(itemId));
             itemCounts.add(itemCount);
+
+            // remove the minimum element if heap length is > n
             if (itemCounts.size() > n) {
                 itemCounts.poll();
             }
@@ -64,17 +97,23 @@ public class PurchaseStore {
             itemCount = itemCounts.poll();
             int itemId = Integer.parseInt(itemCount.getFirst());
             int count = itemCount.getSecond();
-            ItemItemCountModel item = new ItemItemCountModel(itemId, count);
+            ItemItemCount item = new ItemItemCount(itemId, count);
             results.getItems().add(item);
         }
         return results;
     }
 
+    /**
+     * Returns the top N stores that sold the given item
+     * @param n - the number of stores to return
+     * @param itemId - the item ID
+     * @return the top N stores that sold the given item
+     */
     public ItemQueryResponse getTopNStoresForItem(int n, Integer itemId) {
         StoreCountPair storeCount;
         PriorityQueue<StoreCountPair> storeCounts = new PriorityQueue<>();
         ItemQueryResponse results = new ItemQueryResponse();
-        List<StoreItemCountModel> resultStores = new ArrayList<>();
+        List<StoreItemCount> resultStores = new ArrayList<>();
         results.setStores(resultStores);
 
         // if there have not been any purchases made at the given store
@@ -85,10 +124,12 @@ public class PurchaseStore {
         // get items bought from the given store
         Map<Integer, Integer> storesThatSoldItem = itemPurchases.get(itemId.toString());
 
-        // add items to the min heap of size at most n
+        // add items to the min heap, heap has size <= n
         for (Integer storeId : storesThatSoldItem.keySet()) {
             storeCount = new StoreCountPair(storeId, storesThatSoldItem.get(storeId));
             storeCounts.add(storeCount);
+
+            // remove the minimum element if heap length is > n
             if (storeCounts.size() > n) {
                 storeCounts.poll();
             }
@@ -96,7 +137,7 @@ public class PurchaseStore {
 
         while (!storeCounts.isEmpty()) {
             storeCount = storeCounts.poll();
-            StoreItemCountModel item = new StoreItemCountModel(storeCount.getFirst(), storeCount.getSecond());
+            StoreItemCount item = new StoreItemCount(storeCount.getFirst(), storeCount.getSecond());
             results.getStores().add(item);
         }
         return results;

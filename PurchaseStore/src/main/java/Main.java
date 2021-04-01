@@ -6,7 +6,7 @@ public class Main {
     private static final int NUM_PURCHASE_THREADS = 10;
 
     public static void main(String[] args) throws Exception {
-        PurchaseStore purchaseStore = PurchaseStore.getStoreInstance();
+        Store store = Store.getStoreInstance();
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
 
@@ -18,12 +18,12 @@ public class Main {
         Thread[] purchaseThreads = new Thread[NUM_PURCHASE_THREADS];
         for (int i = 0; i < NUM_PURCHASE_THREADS; i ++) {
             purchaseThreads[i] =
-                    new Thread(new PurchaseConsumerRunnable(purchaseStore, connection, purchaseQueueName));
+                    new Thread(new PurchaseConsumerRunnable(store, connection, purchaseQueueName));
             purchaseThreads[i].start();
         }
 
         Thread queryRequestThread =
-                new Thread (new QueryConsumerRunnable(purchaseStore, connection));
+                new Thread (new QueryConsumerRunnable(store, connection));
         queryRequestThread.start();
 
         for (int i = 0; i < NUM_PURCHASE_THREADS; i ++) {

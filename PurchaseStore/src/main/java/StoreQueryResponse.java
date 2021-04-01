@@ -3,19 +3,18 @@ import java.util.List;
 
 /**
  * A class representing the results obtained from the query:
- * What are the top 10 most purchased items at store N?
+ * What are the top N most purchased items at store S?
  */
 public class StoreQueryResponse implements Serializable {
-    private List<ItemItemCount> items;
+    private List<ItemItemCount> store;
 
-    public StoreQueryResponse() {
-    }
+    public StoreQueryResponse() { }
 
     public List<ItemItemCount> getItems() {
-        return items;
+        return store;
     }
 
-    public void setItems(List<ItemItemCount> items) {
-        this.items = items;
+    public void setItems(List<ItemItemCount> store) {
+        this.store = store;
     }
 }

@@ -11,10 +11,10 @@ import java.util.logging.Logger;
 
 public class QueryConsumerRunnable implements Runnable {
     private static final String QUERY_QUEUE_NAME = "rpc";
-    private final PurchaseStore store;
+    private final Store store;
     private final Connection connection;
 
-    public QueryConsumerRunnable(PurchaseStore store, Connection connection) {
+    public QueryConsumerRunnable(Store store, Connection connection) {
         this.store = store;
         this.connection = connection;
     }

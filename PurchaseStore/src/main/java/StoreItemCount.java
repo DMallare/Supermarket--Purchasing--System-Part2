@@ -4,13 +4,13 @@ import java.io.Serializable;
  * A class used to model the data that will be sent in response to requests
  * that ask for the top N stores that sell the most of a specific item
  */
-public class StoreItemCountModel implements Serializable {
+public class StoreItemCount implements Serializable {
     private int storeID;
     private int numberOfItems;
 
-    public StoreItemCountModel() { }
+    public StoreItemCount() { }
 
-    public StoreItemCountModel(int storeID, int numberOfItems) {
+    public StoreItemCount(int storeID, int numberOfItems) {
         this.storeID = storeID;
         this.numberOfItems = numberOfItems;
     }
