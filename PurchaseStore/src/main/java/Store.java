@@ -40,7 +40,7 @@ public class PurchaseStore {
         ItemCountPair itemCount;
         PriorityQueue<ItemCountPair> itemCounts = new PriorityQueue<>();
         StoreQueryResponse results = new StoreQueryResponse();
-        List<ItemItemCount> resultItems = new ArrayList<>();
+        List<ItemItemCountModel> resultItems = new ArrayList<>();
         results.setItems(resultItems);
 
         // if there have not been any purchases made at the given store
@@ -64,7 +64,7 @@ public class PurchaseStore {
             itemCount = itemCounts.poll();
             int itemId = Integer.parseInt(itemCount.getFirst());
             int count = itemCount.getSecond();
-            ItemItemCount item = new ItemItemCount(itemId, count);
+            ItemItemCountModel item = new ItemItemCountModel(itemId, count);
             results.getItems().add(item);
         }
         return results;
@@ -74,7 +74,7 @@ public class PurchaseStore {
         StoreCountPair storeCount;
         PriorityQueue<StoreCountPair> storeCounts = new PriorityQueue<>();
         ItemQueryResponse results = new ItemQueryResponse();
-        List<StoreItemCount> resultStores = new ArrayList<>();
+        List<StoreItemCountModel> resultStores = new ArrayList<>();
         results.setStores(resultStores);
 
         // if there have not been any purchases made at the given store
@@ -96,7 +96,7 @@ public class PurchaseStore {
 
         while (!storeCounts.isEmpty()) {
             storeCount = storeCounts.poll();
-            StoreItemCount item = new StoreItemCount(storeCount.getFirst(), storeCount.getSecond());
+            StoreItemCountModel item = new StoreItemCountModel(storeCount.getFirst(), storeCount.getSecond());
             results.getStores().add(item);
         }
         return results;

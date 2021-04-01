@@ -18,7 +18,6 @@ public class ConsumerRunnable implements Runnable {
         purchaseDao = new PurchaseDao();
         this.connection = connection;
         this.queueName = queueName;
-
     }
 
     @Override
@@ -40,7 +39,7 @@ public class ConsumerRunnable implements Runnable {
 
             channel.basicConsume(queueName, false, deliverCallback, consumerTag -> { });
 
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ConsumerRunnable.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
