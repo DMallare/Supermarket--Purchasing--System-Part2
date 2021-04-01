@@ -22,15 +22,6 @@ public class TopItemsForStoreServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        /*
-        try {
-            channel = RpcChannelPool.getChannelPoolInstance().borrowObject();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            System.err.println("Error retrieving an Rpc channel from the pool");
-        }
-        */
-
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(System.getProperty("RABBITMQ_HOST"));
         try {

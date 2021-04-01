@@ -20,17 +20,9 @@ public class TopStoresForItemsServlet extends HttpServlet {
     private final BlockingQueue<String> responses = new ArrayBlockingQueue<>(1);
     private Channel channel;
 
+
     @Override
     public void init() throws ServletException {
-        /*
-        try {
-            channel = RpcChannelPool.getChannelPoolInstance().borrowObject();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            System.err.println("Error retrieving an Rpc channel from the pool");
-        }
-        */
-
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(System.getProperty("RABBITMQ_HOST"));
         try {
@@ -40,6 +32,7 @@ public class TopStoresForItemsServlet extends HttpServlet {
             e.printStackTrace();
         }
     }
+
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -108,6 +101,7 @@ public class TopStoresForItemsServlet extends HttpServlet {
 
     }
 
+
     private boolean verifyItemId(String itemIdString) {
         try {
             int itemId = Integer.parseInt(itemIdString);
@@ -120,11 +114,13 @@ public class TopStoresForItemsServlet extends HttpServlet {
         return true;
     }
 
+
     private boolean isUrlValid(String[] urlParts) {
         // urlPath = "/items/top5/item_id
         // urlParts = [ , item_id]
         return verifyItemId(urlParts[1]);
     }
+
 
     @Override
     public void destroy() {

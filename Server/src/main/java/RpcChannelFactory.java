@@ -1,7 +1,6 @@
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
-
+import com.rabbitmq.client.ConnectionFactory;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
@@ -9,31 +8,25 @@ import org.apache.commons.pool2.impl.DefaultPooledObject;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-/**
- * A class that serves as a factory to create new RabbitMQ Channel objects
- * for a specific RabbitMQ exchange and pub/sub configuration
- */
-public class ChannelFactory extends BasePooledObjectFactory<Channel> {
-    private static ChannelFactory channelFactory = null;
-    private static final String EXCHANGE_NAME = "purchase";
-    private static final String EXCHANGE_TYPE = "fanout";
+public class RpcChannelFactory extends BasePooledObjectFactory<Channel> {
+    private static RpcChannelFactory rpcChannelFactory = null;
     private static final String HOST = System.getProperty("RABBITMQ_HOST");
     private final ConnectionFactory factory;
     private final Connection connection;
 
-    public static ChannelFactory getChannelFactoryInstance() {
-        if (channelFactory == null) {
+    public static RpcChannelFactory getRpcChannelFactoryInstance() {
+        if (rpcChannelFactory == null) {
             try {
-                channelFactory = new ChannelFactory();
+                rpcChannelFactory = new RpcChannelFactory();
             } catch (Exception e) {
                 e.printStackTrace();
-                System.err.println("Unable to get channel factory instance");
+                System.err.println("Unable to get Rpc channel factory instance");
             }
         }
-        return channelFactory;
+        return rpcChannelFactory;
     }
 
-    private ChannelFactory() throws IOException, TimeoutException {
+    private RpcChannelFactory() throws IOException, TimeoutException {
         factory = new ConnectionFactory();
         factory.setHost(HOST);
         connection = factory.newConnection();
@@ -42,7 +35,6 @@ public class ChannelFactory extends BasePooledObjectFactory<Channel> {
     @Override
     public Channel create() throws IOException {
         Channel channel = connection.createChannel();
-        channel.exchangeDeclare(EXCHANGE_NAME, EXCHANGE_TYPE);
         return channel;
     }
 

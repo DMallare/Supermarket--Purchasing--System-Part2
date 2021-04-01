@@ -3,6 +3,10 @@ import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
+/**
+ * A pool of RabbitMQ Channels associated with a specific exchange
+ * and pub/sub configuration
+ */
 public class ChannelPool extends GenericObjectPool<Channel> {
     private static final ChannelPool pool =
             new ChannelPool(ChannelFactory.getChannelFactoryInstance());

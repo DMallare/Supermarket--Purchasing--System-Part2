@@ -8,7 +8,6 @@ import javax.servlet.annotation.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -23,6 +22,7 @@ public class PurchaseServlet extends HttpServlet {
     final private int DATE_VAL_INDEX = 5;
     private Channel channel;
 
+
     @Override
     public void init() throws ServletException {
         try {
@@ -32,6 +32,7 @@ public class PurchaseServlet extends HttpServlet {
             System.err.println("Error retrieving a channel from the pool");
         }
     }
+
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -64,17 +65,10 @@ public class PurchaseServlet extends HttpServlet {
                 response.setStatus((HttpServletResponse.SC_BAD_REQUEST));
                 response.getWriter().write("Invalid purchaseItems");
             } else {
-                // request body is properly formatted, insert into the queue
-                int storeId = Integer.parseInt(urlParts[STOREID_INDEX]);
-                int customerId = Integer.parseInt(urlParts[CUSTOMERID_INDEX]);
+                // request body is properly formatted, create Purchase
+                Purchase newPurchase = createNewPurchase(urlParts, purchaseItemsStr);
 
-                // create a new Purchase instance
-                Purchase newPurchase = new Purchase();
-                newPurchase.setStoreID(storeId);
-                newPurchase.setCustomerID(customerId);
-                newPurchase.setDate(urlParts[DATE_VAL_INDEX]);
-                newPurchase.setPurchaseItems(purchaseItemsStr);
-
+                // publish purchase to the RabbitMQ exchange
                 enqueuePurchase(newPurchase);
                 response.setStatus(HttpServletResponse.SC_CREATED);
             }
@@ -90,11 +84,39 @@ public class PurchaseServlet extends HttpServlet {
         }
     }
 
-    private void enqueuePurchase(Purchase purchase) throws IOException {
-            String message = new Gson().toJson(purchase);
-            channel.basicPublish(EXCHANGE_NAME, "", null, message.getBytes("UTF-8"));
+
+    private Purchase createNewPurchase(String[] urlParts, String purchaseItemsStr) {
+        int storeId = Integer.parseInt(urlParts[STOREID_INDEX]);
+        int customerId = Integer.parseInt(urlParts[CUSTOMERID_INDEX]);
+
+        // create a new Purchase instance
+        Purchase newPurchase = new Purchase();
+        newPurchase.setStoreID(storeId);
+        newPurchase.setCustomerID(customerId);
+        newPurchase.setDate(urlParts[DATE_VAL_INDEX]);
+        newPurchase.setPurchaseItems(purchaseItemsStr);
+
+        return newPurchase;
     }
 
+
+    /**
+     * Serializes the given Purchase object and publishes it to the exchange
+     * @param purchase - the given Purchase object to publish to the exchange
+     * @throws IOException
+     */
+    private void enqueuePurchase(Purchase purchase) throws IOException {
+        String message = new Gson().toJson(purchase);
+        channel.basicPublish(EXCHANGE_NAME, "", null, message.getBytes("UTF-8"));
+    }
+
+
+    /**
+     * Parses the body of the request
+     * @param requestBodyReader
+     * @return the String contents of the request body
+     * @throws IOException
+     */
     private String parseRequestBody(BufferedReader requestBodyReader) throws IOException {
         // read in request body
         StringBuilder requestBodyBuilder = new StringBuilder();
@@ -105,6 +127,12 @@ public class PurchaseServlet extends HttpServlet {
         return requestBodyBuilder.toString();
     }
 
+
+    /**
+     * Validates the purchase
+     * @param purchaseItems - the items specified in the request body
+     * @return
+     */
     private boolean validatePurchase(PurchaseItems purchaseItems) {
         for (PurchaseItem item : purchaseItems.getItems()) {
             if (item.getItemID() == null || item.getItemID().isEmpty()
@@ -115,6 +143,7 @@ public class PurchaseServlet extends HttpServlet {
         return true;
     }
 
+
     private boolean verifyDate(String dateString) {
         // verify date
         try {
@@ -124,6 +153,7 @@ public class PurchaseServlet extends HttpServlet {
         }
         return true;
     }
+
 
     private boolean verifyCustomerId(String customerIdString) {
         try {
@@ -137,6 +167,7 @@ public class PurchaseServlet extends HttpServlet {
         return true;
     }
 
+
     private boolean verifyStoreId(String storeIdString) {
         try {
             int storeId = Integer.parseInt(storeIdString);
@@ -148,6 +179,7 @@ public class PurchaseServlet extends HttpServlet {
         }
         return true;
     }
+
 
     private boolean isUrlValid(String[] urlParts) {
         // urlPath  = "/purchase/store_id/customer/customer_id/date/YYYYMMDD"
@@ -162,8 +194,10 @@ public class PurchaseServlet extends HttpServlet {
                 && verifyStoreId(urlParts[STOREID_INDEX]);
     }
 
+
     @Override
     public void destroy() {
+        // return the channel back to the pool
         ChannelPool.getChannelPoolInstance().returnObject(channel);
     }
 
