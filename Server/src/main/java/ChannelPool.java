@@ -20,8 +20,8 @@ public class ChannelPool extends GenericObjectPool<Channel> {
     private ChannelPool(PooledObjectFactory<Channel> factory) {
         super(factory);
         GenericObjectPoolConfig<Channel> config = new GenericObjectPoolConfig<>();
-        config.setMaxIdle(100);
-        config.setMaxTotal(200);
+        config.setMaxIdle(10);
+        config.setMaxTotal(50);
         this.setConfig(config);
     }
 

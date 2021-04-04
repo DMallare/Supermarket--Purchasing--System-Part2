@@ -20,19 +20,8 @@ public class PurchaseServlet extends HttpServlet {
     final private int CUSTOMERID_INDEX = 3;
     final private int DATE_INDEX = 4;
     final private int DATE_VAL_INDEX = 5;
+    private ChannelPool channelPool;
     private Channel channel;
-
-
-    @Override
-    public void init() throws ServletException {
-        try {
-            channel = ChannelPool.getChannelPoolInstance().borrowObject();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            System.err.println("Error retrieving a channel from the pool");
-        }
-    }
-
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -69,7 +58,11 @@ public class PurchaseServlet extends HttpServlet {
                 Purchase newPurchase = createNewPurchase(urlParts, purchaseItemsStr);
 
                 // publish purchase to the RabbitMQ exchange
+                channelPool = ChannelPool.getChannelPoolInstance();
+                channel = channelPool.borrowObject();
                 enqueuePurchase(newPurchase);
+
+                channelPool.returnObject(channel);
                 response.setStatus(HttpServletResponse.SC_CREATED);
             }
         } catch (JsonSyntaxException e) {
@@ -77,7 +70,7 @@ public class PurchaseServlet extends HttpServlet {
             response.setStatus((HttpServletResponse.SC_BAD_REQUEST));
             response.getWriter().write("Invalid purchase");
         }
-        catch (IOException e) {
+        catch (Exception e) {
             e.printStackTrace();
             response.setStatus((HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
             response.getWriter().write("Purchase did not get enqueued.");
@@ -193,12 +186,4 @@ public class PurchaseServlet extends HttpServlet {
                 && verifyCustomerId(urlParts[CUSTOMERID_INDEX])
                 && verifyStoreId(urlParts[STOREID_INDEX]);
     }
-
-
-    @Override
-    public void destroy() {
-        // return the channel back to the pool
-        ChannelPool.getChannelPoolInstance().returnObject(channel);
-    }
-
 }

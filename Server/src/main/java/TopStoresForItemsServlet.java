@@ -17,6 +17,9 @@ import java.util.concurrent.TimeoutException;
 public class TopStoresForItemsServlet extends HttpServlet {
     private static final int NUM_TOP_ITEMS = 5;
     private static final String REQUEST_QUEUE_NAME = "rpc";
+    private static final String HOST = System.getProperty("RABBITMQ_HOST");
+    private static final String USERNAME = System.getProperty("RABBITMQ_USERNAME");
+    private static final String PASSWORD = System.getProperty("RABBITMQ_PASSWORD");
     private final BlockingQueue<String> responses = new ArrayBlockingQueue<>(1);
     private Channel channel;
 
@@ -24,7 +27,9 @@ public class TopStoresForItemsServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(System.getProperty("RABBITMQ_HOST"));
+        factory.setHost(HOST);
+        factory.setUsername(USERNAME);
+        factory.setPassword(PASSWORD);
         try {
             Connection connection = factory.newConnection();
             channel = connection.createChannel();
@@ -119,12 +124,6 @@ public class TopStoresForItemsServlet extends HttpServlet {
         // urlPath = "/items/top5/item_id
         // urlParts = [ , item_id]
         return verifyItemId(urlParts[1]);
-    }
-
-
-    @Override
-    public void destroy() {
-        RpcChannelPool.getChannelPoolInstance().returnObject(channel);
     }
 
 }

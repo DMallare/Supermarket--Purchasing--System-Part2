@@ -14,30 +14,36 @@ import java.util.concurrent.TimeoutException;
  * for a specific RabbitMQ exchange and pub/sub configuration
  */
 public class ChannelFactory extends BasePooledObjectFactory<Channel> {
-    private static ChannelFactory channelFactory = null;
     private static final String EXCHANGE_NAME = "purchase";
     private static final String EXCHANGE_TYPE = "fanout";
     private static final String HOST = System.getProperty("RABBITMQ_HOST");
-    private final ConnectionFactory factory;
-    private final Connection connection;
+    private static final String USERNAME = System.getProperty("RABBITMQ_USERNAME");
+    private static final String PASSWORD = System.getProperty("RABBITMQ_PASSWORD");
+
+    private static ChannelFactory channelFactory;
+    private static ConnectionFactory factory = null;
+    private static Connection connection = null;
+
+
+    static {
+        try {
+            channelFactory = new ChannelFactory();
+            factory = new ConnectionFactory();
+            factory.setHost(HOST);
+            factory.setUsername(USERNAME);
+            factory.setPassword(PASSWORD);
+            connection = factory.newConnection();
+        } catch (IOException | TimeoutException e) {
+            e.printStackTrace();
+            System.err.println("Error instantiating ChannelFactory");
+        }
+    }
+
 
     public static ChannelFactory getChannelFactoryInstance() {
-        if (channelFactory == null) {
-            try {
-                channelFactory = new ChannelFactory();
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.err.println("Unable to get channel factory instance");
-            }
-        }
         return channelFactory;
     }
 
-    private ChannelFactory() throws IOException, TimeoutException {
-        factory = new ConnectionFactory();
-        factory.setHost(HOST);
-        connection = factory.newConnection();
-    }
 
     @Override
     public Channel create() throws IOException {
@@ -45,6 +51,7 @@ public class ChannelFactory extends BasePooledObjectFactory<Channel> {
         channel.exchangeDeclare(EXCHANGE_NAME, EXCHANGE_TYPE);
         return channel;
     }
+
 
     /**
      * Use the default PooledObject implementation.
