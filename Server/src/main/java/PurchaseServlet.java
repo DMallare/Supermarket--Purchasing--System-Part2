@@ -1,6 +1,7 @@
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.MessageProperties;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -100,7 +101,8 @@ public class PurchaseServlet extends HttpServlet {
      */
     private void enqueuePurchase(Purchase purchase) throws IOException {
         String message = new Gson().toJson(purchase);
-        channel.basicPublish(EXCHANGE_NAME, "", null, message.getBytes("UTF-8"));
+        channel.basicPublish(EXCHANGE_NAME, "", MessageProperties.PERSISTENT_TEXT_PLAIN,
+                message.getBytes("UTF-8"));
     }
 
 

@@ -48,7 +48,8 @@ public class ChannelFactory extends BasePooledObjectFactory<Channel> {
     @Override
     public Channel create() throws IOException {
         Channel channel = connection.createChannel();
-        channel.exchangeDeclare(EXCHANGE_NAME, EXCHANGE_TYPE);
+        // last parameter makes exchange durable or not
+        channel.exchangeDeclare(EXCHANGE_NAME, EXCHANGE_TYPE, true);
         return channel;
     }
 
