@@ -2,8 +2,11 @@ import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.DeliverCallback;
+import com.rabbitmq.client.MessageProperties;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,7 +27,7 @@ public class ConsumerRunnable implements Runnable {
     public void run() {
         try {
             final Channel channel = connection.createChannel();
-            channel.exchangeDeclare(EXCHANGE_NAME, EXCHANGE_TYPE);
+            channel.exchangeDeclare(EXCHANGE_NAME, EXCHANGE_TYPE, true);
             channel.queueBind(queueName, EXCHANGE_NAME, "");
             channel.basicQos(1);
 

@@ -6,7 +6,8 @@ import java.io.FileInputStream;
 import java.util.Properties;
 
 public class Main {
-    private static final int numThreads = 25;
+    private static final int NUM_THREADS = 25;
+    private static final boolean DURABLE = true;
 
     public static void main(String[] args) throws Exception {
         // set config properties
@@ -23,15 +24,16 @@ public class Main {
 
         final Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
-        final String queueName = channel.queueDeclare().getQueue();
+        final String queueName =
+                channel.queueDeclare("purchase", DURABLE, false, false,  null).getQueue();
 
-        Thread[] threads = new Thread[numThreads];
-        for (int i = 0; i < numThreads; i ++) {
+        Thread[] threads = new Thread[NUM_THREADS];
+        for (int i = 0; i < NUM_THREADS; i ++) {
             threads[i] = new Thread(new ConsumerRunnable(connection, queueName));
             threads[i].start();
         }
 
-        for (int i = 0; i < numThreads; i ++) {
+        for (int i = 0; i < NUM_THREADS; i ++) {
             threads[i].join();
         }
     }
