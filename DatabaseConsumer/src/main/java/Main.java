@@ -6,7 +6,7 @@ import java.io.FileInputStream;
 import java.util.Properties;
 
 public class Main {
-    private static final int numThreads = 200;
+    private static final int numThreads = 25;
 
     public static void main(String[] args) throws Exception {
         // set config properties
@@ -18,6 +18,8 @@ public class Main {
 
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(System.getProperty("RABBITMQ_HOST"));
+        factory.setUsername(System.getProperty("RABBITMQ_USERNAME"));
+        factory.setPassword(System.getProperty("RABBITMQ_PASSWORD"));
 
         final Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
