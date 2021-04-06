@@ -7,7 +7,7 @@ import java.util.Properties;
 
 public class Main {
     private static final int NUM_THREADS = 25;
-    private static final boolean DURABLE = true;
+    private static final boolean DURABLE = false;
 
     public static void main(String[] args) throws Exception {
         // set config properties
@@ -25,7 +25,7 @@ public class Main {
         final Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
         final String queueName =
-                channel.queueDeclare("purchase", DURABLE, false, false,  null).getQueue();
+                channel.queueDeclare("purchaseQueue", DURABLE, false, false,  null).getQueue();
 
         Thread[] threads = new Thread[NUM_THREADS];
         for (int i = 0; i < NUM_THREADS; i ++) {

@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 public class ConsumerRunnable implements Runnable {
     private static final String EXCHANGE_NAME = "purchase";
     private static final String EXCHANGE_TYPE = "fanout";
+    private static final boolean DURABLE = false;
     private final Connection connection;
     private final PurchaseDao purchaseDao;
     private final String queueName;
@@ -27,7 +28,7 @@ public class ConsumerRunnable implements Runnable {
     public void run() {
         try {
             final Channel channel = connection.createChannel();
-            channel.exchangeDeclare(EXCHANGE_NAME, EXCHANGE_TYPE, true);
+            channel.exchangeDeclare(EXCHANGE_NAME, EXCHANGE_TYPE, DURABLE);
             channel.queueBind(queueName, EXCHANGE_NAME, "");
             channel.basicQos(1);
 
