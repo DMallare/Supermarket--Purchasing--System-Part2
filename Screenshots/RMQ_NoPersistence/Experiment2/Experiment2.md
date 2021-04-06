@@ -7,7 +7,7 @@
 | Server            |  t2.micro       | Amazon Linux 2 |
 | RabbitMQ          |  t2.micro       | Ubuntu 20.04   |
 | Database Consumer |  t2.micro       | Amazon Linux 2 |
-| Store             |  t2.micro       | Amazon Linux 2 |
+| Store             |  t2.medium      | Amazon Linux 2 |
 | RDS               |  db.t2.micro    | MySQL Community|
 
 ------------------------------------------------------
@@ -19,8 +19,9 @@
 | Channel Pool mix idle       |  10             |
 | Channel Pool max total      |  50             |
 | DB Consumer thread count    |  25             |
-| Store Consumer tread count  |  25             |
+| Store Consumer thread count |  25             |
 | RabbitMQ CPU memory use     |  70%            |
+| RabbitMQ Durable Queues     | False           |
 
 
 -----------------------------------------------------
