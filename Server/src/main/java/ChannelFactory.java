@@ -19,7 +19,7 @@ public class ChannelFactory extends BasePooledObjectFactory<Channel> {
     private static final String HOST = System.getProperty("RABBITMQ_HOST");
     private static final String USERNAME = System.getProperty("RABBITMQ_USERNAME");
     private static final String PASSWORD = System.getProperty("RABBITMQ_PASSWORD");
-
+    private static final boolean DURABLE = false;
     private static ChannelFactory channelFactory;
     private static ConnectionFactory factory = null;
     private static Connection connection = null;
@@ -48,8 +48,7 @@ public class ChannelFactory extends BasePooledObjectFactory<Channel> {
     @Override
     public Channel create() throws IOException {
         Channel channel = connection.createChannel();
-        // last parameter makes exchange durable or not
-        channel.exchangeDeclare(EXCHANGE_NAME, EXCHANGE_TYPE, true);
+        channel.exchangeDeclare(EXCHANGE_NAME, EXCHANGE_TYPE, DURABLE);
         return channel;
     }
 

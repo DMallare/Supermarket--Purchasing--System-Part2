@@ -1,7 +1,7 @@
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.MessageProperties;
+import com.rabbitmq.client.AMQP.BasicProperties;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -16,6 +16,8 @@ import java.time.format.DateTimeFormatter;
 @WebServlet(name = "PurchaseServlet", value = "/PurchaseServlet")
 public class PurchaseServlet extends HttpServlet {
     private static final String EXCHANGE_NAME = "purchase";
+    private static final int NON_PERSISTENT= 1;
+    private static final int PERSISTENT = 2;
     final private int STOREID_INDEX = 1;
     final private int CUSTOMER_INDEX = 2;
     final private int CUSTOMERID_INDEX = 3;
@@ -89,7 +91,6 @@ public class PurchaseServlet extends HttpServlet {
         newPurchase.setCustomerID(customerId);
         newPurchase.setDate(urlParts[DATE_VAL_INDEX]);
         newPurchase.setPurchaseItems(purchaseItemsStr);
-
         return newPurchase;
     }
 
@@ -100,9 +101,10 @@ public class PurchaseServlet extends HttpServlet {
      * @throws IOException
      */
     private void enqueuePurchase(Purchase purchase) throws IOException {
+        System.out.println("Sending to RMQ");
+        BasicProperties messageProperties = new BasicProperties.Builder().deliveryMode(NON_PERSISTENT).build();
         String message = new Gson().toJson(purchase);
-        channel.basicPublish(EXCHANGE_NAME, "", MessageProperties.PERSISTENT_TEXT_PLAIN,
-                message.getBytes("UTF-8"));
+        channel.basicPublish(EXCHANGE_NAME, "", messageProperties, message.getBytes("UTF-8"));
     }
 
 
